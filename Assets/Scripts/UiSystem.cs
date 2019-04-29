@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,10 +15,6 @@ public sealed class UiSystem : MonoBehaviour {
 	private RectTransform _normalLayer = null;
 	private RectTransform _topLayer = null;
 
-	private Canvas _canvas = null;
-	private CanvasScaler _scaler = null;
-	private CanvasGroup _group = null;
-
 	private LinkedList<UiModel> _uiStack = new LinkedList<UiModel>();
 
 	private void Awake() {
@@ -27,9 +22,6 @@ public sealed class UiSystem : MonoBehaviour {
 		_instance = this;
 
 		_rectTransform = GetComponent<RectTransform>();
-		_canvas = GetComponent<Canvas>();
-		_scaler = GetComponent<CanvasScaler>();
-		_group = GetComponent<CanvasGroup>();
 
 		_normalLayer = _CreateChild("UiNormalLayer", _rectTransform);
 		_topLayer = _CreateChild("UiTopLayer", _rectTransform);
@@ -78,9 +70,6 @@ public sealed class UiSystem : MonoBehaviour {
 
 		var model = _InstantiateModel(prefab, top);
 		_uiStack.AddLast(model);
-
-		model.OnOpen();
-		model.OnOpenAction();
 	}
 
 	private void _Pop() {
