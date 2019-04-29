@@ -6,6 +6,7 @@
 [Tt]emp/
 
 *.vs
+*.vscode
 *.sln
 *.csproj
 *.meta

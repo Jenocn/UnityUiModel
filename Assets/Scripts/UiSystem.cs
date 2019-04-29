@@ -12,6 +12,7 @@ public sealed class UiSystem : MonoBehaviour {
 
 	private static UiSystem _instance = null;
 
+	private RectTransform _rectTransform = null;
 	private RectTransform _normalLayer = null;
 	private RectTransform _topLayer = null;
 
@@ -25,21 +26,16 @@ public sealed class UiSystem : MonoBehaviour {
 
 		_instance = this;
 
-		var normal = new GameObject("UiNormalLayer");
-		var top = new GameObject("UiTopLayer");
-		normal.transform.SetParent(transform);
-		top.transform.SetParent(transform);
-
-		_normalLayer = normal.AddComponent<RectTransform>();
-		_topLayer = top.AddComponent<RectTransform>();
-		_normalLayer.localScale = Vector3.one;
-		_topLayer.localScale = Vector3.one;
-		_normalLayer.localPosition = Vector3.zero;
-		_topLayer.localPosition = Vector3.zero;
-
+		_rectTransform = GetComponent<RectTransform>();
 		_canvas = GetComponent<Canvas>();
 		_scaler = GetComponent<CanvasScaler>();
 		_group = GetComponent<CanvasGroup>();
+
+		_normalLayer = _CreateChild("UiNormalLayer", _rectTransform);
+		_topLayer = _CreateChild("UiTopLayer", _rectTransform);
+
+		_InitTransform(ref _normalLayer);
+		_InitTransform(ref _topLayer);
 	}
 
 	private void OnDestroy() {
@@ -47,9 +43,9 @@ public sealed class UiSystem : MonoBehaviour {
 		_Clear();
 	}
 
-	public static void Push(GameObject prefab) {
+	public static void Push(GameObject prefab, bool top = false) {
 		if (_instance) {
-			_instance._Push(prefab);
+			_instance._Push(prefab, top);
 		}
 	}
 
@@ -65,7 +61,7 @@ public sealed class UiSystem : MonoBehaviour {
 		}
 	}
 
-	private void _Push(GameObject prefab) {
+	private void _Push(GameObject prefab, bool top = false) {
 		if (!prefab) {
 			Debug.LogError("The prefab is null!");
 			return;
@@ -80,7 +76,7 @@ public sealed class UiSystem : MonoBehaviour {
 			last.OnPause();
 		}
 
-		var model = Instantiate(prefab, _CreateVest(prefab.name, _normalLayer)).GetComponent<UiModel>();
+		var model = _InstantiateModel(prefab, top);
 		_uiStack.AddLast(model);
 
 		model.OnOpen();
@@ -93,7 +89,7 @@ public sealed class UiSystem : MonoBehaviour {
 			_uiStack.RemoveLast();
 			var delay = model.OnCloseAction();
 			model.OnClose();
-			Destroy(model.transform.parent.gameObject, delay);
+			Destroy(model.gameObject, delay);
 			var last = (_uiStack.Last != null) ? _uiStack.Last.Value : null;
 			if (last) {
 				last.OnResume();
@@ -107,12 +103,29 @@ public sealed class UiSystem : MonoBehaviour {
 		}
 	}
 
-	private RectTransform _CreateVest(string name, Transform parent) {
-		var vest = new GameObject(name);
-		var rt = vest.AddComponent<RectTransform>();
-		rt.SetParent(parent);
-		rt.localScale = Vector3.one;
-		rt.localPosition = Vector3.zero;
-		return rt;
+	private RectTransform _CreateChild(string name, RectTransform parent) {
+		var obj = new GameObject(name);
+		var ret = obj.AddComponent<RectTransform>();
+		ret.SetParent(parent);
+		_InitTransform(ref ret);
+		return ret;
+	}
+
+	private UiModel _InstantiateModel(GameObject prefab, bool top) {
+		var parent = _normalLayer;
+		if (top) {
+			parent = _topLayer;
+		}
+		var modelObj = Instantiate(prefab, parent);
+		modelObj.name = prefab.name;
+		var modelTransform = modelObj.GetComponent<RectTransform>();
+		_InitTransform(ref modelTransform);
+		var model = modelObj.GetComponent<UiModel>();
+		return model;
+	}
+
+	private void _InitTransform(ref RectTransform target) {
+		target.localScale = Vector3.one;
+		target.localPosition = Vector3.zero;
 	}
 }
