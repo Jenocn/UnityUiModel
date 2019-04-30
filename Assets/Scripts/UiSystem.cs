@@ -70,6 +70,9 @@ public sealed class UiSystem : MonoBehaviour {
 
 		var model = _InstantiateModel(prefab, top);
 		_uiStack.AddLast(model);
+
+		model.OnOpen();
+		model.OnOpenAction();
 	}
 
 	private void _Pop() {

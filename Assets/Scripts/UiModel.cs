@@ -11,11 +11,6 @@ public class UiModel : MonoBehaviour {
 		OnCreate();
 	}
 
-	protected void Start() {
-		OnOpen();
-		OnOpenAction();
-	}
-
 	protected void OnDestroy() {
 		OnRelease();
 	}
