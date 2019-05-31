@@ -2,13 +2,17 @@
 using UnityEngine.UI;
 
 [RequireComponent(typeof(RectTransform))]
-[RequireComponent(typeof(ObjectBinding))]
 public class UiModel : MonoBehaviour {
 
-	private ObjectBinding _objectBinding = null;
+	private UiStack _uiStack = null;
 
 	protected void Awake() {
 		OnCreate();
+	}
+
+	protected void Start() {
+		OnOpen();
+		OnOpenAction();
 	}
 
 	protected void OnDestroy() {
@@ -19,12 +23,23 @@ public class UiModel : MonoBehaviour {
 		OnUpdate();
 	}
 
-	//=================== methods ====================
-	public GameObject Query(string key) {
-		return _GetObjectBinding().Query(key);
+	public UiModel PushUI(GameObject prefab) {
+		if (!_uiStack) { return null; }
+		return _uiStack.Push(prefab);
 	}
-	public T QueryCommponent<T>(string key) where T : Component {
-		return _GetObjectBinding().QueryComponent<T>(key);
+
+	public T PushUI<T>(GameObject prefab) where T : UiModel {
+		return PushUI(prefab) as T;
+	}
+
+	public void Close() {
+		if (_uiStack) {
+			_uiStack.Pop();
+		}
+	}
+
+	public void _BindUiStack(UiStack uiStack) {
+		_uiStack = uiStack;
 	}
 
 	/**
@@ -41,24 +56,16 @@ public class UiModel : MonoBehaviour {
 	 */
 
 	public virtual void OnCreate() { }
-	public virtual void OnRelease() { }
-
 	public virtual void OnOpen() { }
-	public virtual void OnClose() { }
-
 	public virtual void OnOpenAction() { }
-	public virtual float OnCloseAction() { return 0; }
 
 	public virtual void OnPause() { }
 	public virtual void OnResume() { }
 
 	public virtual void OnUpdate() { }
+	public virtual float OnCloseAction() { return 0; }
+	public virtual void OnClose() { }
+	public virtual void OnRelease() { }
 
 	// ====================== end =====================
-	private ObjectBinding _GetObjectBinding() {
-		if (!_objectBinding) {
-			_objectBinding = GetComponent<ObjectBinding>();
-		}
-		return _objectBinding;
-	}
 }
