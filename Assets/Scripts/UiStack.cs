@@ -10,11 +10,13 @@ using UnityEngine.UI;
 public sealed class UiStack : MonoBehaviour {
 
 	private RectTransform _rectTransform = null;
-
 	private LinkedList<UiModel> _uiStack = new LinkedList<UiModel>();
+
+	public Canvas canvas { get; private set; }
 
 	private void Awake() {
 		_rectTransform = GetComponent<RectTransform>();
+		canvas = GetComponent<Canvas>();
 	}
 
 	private void OnDestroy() {
@@ -47,23 +49,38 @@ public sealed class UiStack : MonoBehaviour {
 	}
 
 	public void Pop() {
-		var model = (_uiStack.Last != null) ? _uiStack.Last.Value : null;
+		if (_uiStack.Last == null) { return; }
+		var model = _uiStack.Last.Value;
+		_uiStack.RemoveLast();
 		if (model) {
-			_uiStack.RemoveLast();
 			model._BindUiStack(null);
 			var delay = model.OnCloseAction();
-			model.OnClose();
-			Destroy(model.gameObject, delay);
 			var last = (_uiStack.Last != null) ? _uiStack.Last.Value : null;
 			if (last) {
 				last.OnResume();
 			}
+			model.OnClose();
+			Destroy(model.gameObject, delay);
 		}
 	}
 
 	public void Clear() {
 		while (_uiStack.Last != null) {
 			Pop();
+		}
+	}
+
+	public void Pause() {
+		var last = (_uiStack.Last != null) ? _uiStack.Last.Value : null;
+		if (last) {
+			last.OnPause();
+		}
+	}
+
+	public void Resume() {
+		var last = (_uiStack.Last != null) ? _uiStack.Last.Value : null;
+		if (last) {
+			last.OnResume();
 		}
 	}
 
