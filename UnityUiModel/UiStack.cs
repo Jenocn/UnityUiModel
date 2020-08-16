@@ -5,7 +5,7 @@ namespace UnityUiModel {
 	public class UiStack : MonoBehaviour {
 		private LinkedList<UiModel> _modelList = new LinkedList<UiModel>();
 
-		[SerializeField, InspectorLabel("根节点")]
+		[SerializeField]
 		private GameObject _root = null;
 
 		private void Awake() {
