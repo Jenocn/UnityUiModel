@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Game.Base {
+namespace UnityUiModel {
 	public abstract class UiModel : MonoBehaviour {
 		public UiStack uiStack { get; private set; } = null;
 		private System.Action _hideAction = null;
