@@ -20,6 +20,14 @@ namespace UnityUiModel {
 			}
 			var modelObj = new GameObject("Model");
 			modelObj.transform.SetParent(_root.transform);
+			var rectTransform = modelObj.AddComponent<RectTransform>();
+			rectTransform.pivot = new Vector2(0.5f, 0.5f);
+			rectTransform.anchorMin = Vector2.zero;
+			rectTransform.anchorMax = Vector2.one;
+			rectTransform.localScale = Vector3.one;
+			rectTransform.offsetMin = Vector2.zero;
+			rectTransform.offsetMax = Vector2.zero;
+			rectTransform.localPosition = Vector3.zero;
 			var model = modelObj.AddComponent<TModel>();
 			model.__InitUiStack(this);
 			model.OnInitUI();
